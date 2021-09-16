@@ -16,8 +16,11 @@ class ProductController extends AbstractController
      */
     public function index(): Response
     {
+        $repository = $this->getDoctrine()->getRepository(Product::class);
+        $products = $repository->findAllGranterThanPrice(10);
+
         return $this->render('product/index.html.twig', [
-            'controller_name' => 'ProductController',
+            'products' => $products,
         ]);
     }
 
@@ -86,6 +89,20 @@ class ProductController extends AbstractController
         $entityManager->flush();
 
         return $this->redirectToRoute('product_show', [
+            'id' => $product->getId()
+        ]);
+    }
+
+    /**
+     * @Route("/product/delete/{id}", name="product_delete")
+     */
+    public function delete(Product $product): Response
+    {
+        $entityManager = $this->getDoctrine()->getManager();
+        $entityManager->remove($product);
+        $entityManager->flush();
+
+        return $this->redirectToRoute("product_show", [
             'id' => $product->getId()
         ]);
     }
